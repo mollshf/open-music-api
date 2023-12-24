@@ -1,5 +1,6 @@
 const AlbumHandler = require('./handler');
 const routes = require('./routes');
+const { debugConsole } = require('../../../utils/debug/chalkConsole');
 
 module.exports = {
   name: 'albums',

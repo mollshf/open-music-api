@@ -10,26 +10,28 @@ class AlbumServices {
   }
 
   async addAlbum({ name, year }) {
+    debugConsole({ name, year }, 'album service');
     const id = `album ${nanoid(6)}`;
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
 
     const query = {
-      text: 'INSERT INTO($1)',
-      values: [],
+      text: `INSERT INTO albums VALUES($1, $2, $3, $4, $5) RETURNING id`,
+      values: [id, name, year, createdAt, updatedAt],
     };
 
-    const isSuccess = await this.pool();
+    const result = await this.pool.query(query);
 
-    if (!isSuccess) {
-      throw Error('Album gagal ditambahkan');
+    if (!result.rows[0].id) {
+      throw new Error('Album gagal ditambahkan');
     }
-    debugConsole(id, 'add album debug console');
-    return id;
+
+    return result.rows;
   }
 
   async getAlbums() {
-    return this.pool;
+    const result = await this.pool.query('SELECT * FROM albums');
+    return result.rows;
   }
 
   async getAlbumById(id) {
