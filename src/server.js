@@ -6,6 +6,7 @@ const albums = require('./api/albums/index');
 // const songs = require('./api/songs/index');
 const AlbumServices = require('./service/postgres/AlbumServices');
 const { debugConsole } = require('../utils/debug/chalkConsole');
+const ClientError = require('./exception/ClientError');
 
 debugConsole(process.env.HOST);
 
@@ -40,12 +41,12 @@ const init = async () => {
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
 
-    if (!response) {
+    if (response instanceof ClientError) {
       const newResponse = h.response({
-        status: 'testing onPreResponse',
-        message: 'jalan aja trosss ni program',
+        status: 'fail',
+        message: response.message,
       });
-      newResponse.code(response.statusCode);
+      response.code(response.statusCode);
       return newResponse;
     }
     return h.continue;

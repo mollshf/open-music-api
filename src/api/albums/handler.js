@@ -6,6 +6,8 @@ class AlbumHandler {
     this.postAlbumHandler = this.postAlbumHandler.bind(this);
     this.getAlbumsHandler = this.getAlbumsHandler.bind(this);
     this.getAlbumByIdHandler = this.getAlbumByIdHandler.bind(this);
+    this.putAlbumByIdHandler = this.putAlbumByIdHandler.bind(this);
+    this.deleteAlbumByIdHandler = this.deleteAlbumByIdHandler.bind(this);
   }
 
   async postAlbumHandler(request, h) {
@@ -44,6 +46,28 @@ class AlbumHandler {
       data: {
         album,
       },
+    };
+  }
+
+  async putAlbumByIdHandler(request) {
+    const { id, name, year } = request.payload;
+
+    await this.service.editAlbumById(id, { name, year });
+
+    return {
+      status: 'success',
+      message: 'Album berhasil ditambahkan',
+    };
+  }
+
+  async deleteAlbumByIdHandler(request) {
+    const { id } = request.payload;
+
+    await this.service.deleteAlbumById(id);
+
+    return {
+      status: 'success',
+      message: 'Album berhasil dihapus',
     };
   }
 }

@@ -3,6 +3,8 @@ const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
 
 const { debugConsole } = require('../../../utils/debug/chalkConsole');
+const NotFoundError = require('../../exception/NotFoundError');
+const InvariantError = require('../../exception/InvariantError');
 
 class AlbumServices {
   constructor() {
@@ -23,7 +25,7 @@ class AlbumServices {
     const result = await this.pool.query(query);
 
     if (!result.rows[0].id) {
-      throw new Error('Album gagal ditambahkan');
+      throw new InvariantError('Album gagal ditambahkan');
     }
 
     return result.rows[0].id;
@@ -43,17 +45,39 @@ class AlbumServices {
     const result = await this.pool.query(query);
 
     if (!result.rows[0]) {
-      throw Error('Album tidak ditemukan');
+      throw new NotFoundError('Album tidak ditemukan');
     }
 
     return result.rows[0];
   }
 
-  async editAlbumById(id) {
-    const index = await this.pool.findIndex((note) => note.id === id);
-    if (index === -1) {
-      throw new Error('Gagal memperbarui catatan. Id tidak ditemukan');
+  async editAlbumById(id, { name, year }) {
+    const updatedAt = new Date().toISOString();
+    const query = {
+      text: `UPDATE albums SET name = $1, year = $2,  updated_at = $3 WHERE id = $4 RETURNING id`,
+      values: [name, year, updatedAt, id],
+    };
+
+    const result = await this.pool.query(query);
+    if (!result.rows[0]) {
+      throw new NotFoundError('Gagal memperbarui Album. Id tidak ditemukan');
     }
+
+    return result.rows[0].id;
+  }
+
+  async deleteAlbumById(id) {
+    const query = {
+      text: `DELETE FROM albums WHERE id = $1 RETURNING id`,
+      values: [id],
+    };
+
+    const result = await this.pool.query(query);
+    if (!result.rows[0]) {
+      throw new NotFoundError('Gagal menghapus Album. Id tidak ditemukan');
+    }
+
+    return result.rows[0].id;
   }
 }
 
