@@ -16,11 +16,11 @@ exports.up = (pgm) => {
       type: 'INTEGER',
       notNull: true,
     },
-    createdAt: {
+    created_at: {
       type: 'TEXT',
       notNull: true,
     },
-    updatedAt: {
+    updated_at: {
       type: 'TEXT',
       notNull: true,
     },
@@ -28,5 +28,5 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
-  pgm.dropTable('notes');
+  pgm.dropTable('albums');
 };

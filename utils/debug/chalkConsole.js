@@ -7,5 +7,4 @@ const debugConsole = (value, message = 'DEBUG CONSOLE') => {
     )} ${chalk.red.bold(value)}`
   );
 };
-debugConsole(2342352345234);
 module.exports = { debugConsole };
