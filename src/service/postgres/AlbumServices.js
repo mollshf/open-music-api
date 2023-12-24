@@ -11,7 +11,7 @@ class AlbumServices {
 
   async addAlbum({ name, year }) {
     debugConsole({ name, year }, 'album service');
-    const id = `album ${nanoid(6)}`;
+    const id = `album-${nanoid(10)}`;
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
 
@@ -26,7 +26,7 @@ class AlbumServices {
       throw new Error('Album gagal ditambahkan');
     }
 
-    return result.rows;
+    return result.rows[0].id;
   }
 
   async getAlbums() {
@@ -35,10 +35,18 @@ class AlbumServices {
   }
 
   async getAlbumById(id) {
-    const album = (await this.pool.filter((data) => data.id === id).length) > 0;
-    if (!album) {
+    const query = {
+      text: `SELECT * FROM albums WHERE id = $1`,
+      values: [id],
+    };
+
+    const result = await this.pool.query(query);
+
+    if (!result.rows[0]) {
       throw Error('Album tidak ditemukan');
     }
+
+    return result.rows[0];
   }
 
   async editAlbumById(id) {

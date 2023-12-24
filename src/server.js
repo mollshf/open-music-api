@@ -37,6 +37,20 @@ const init = async () => {
     // },
   ]);
 
+  server.ext('onPreResponse', (request, h) => {
+    const { response } = request;
+
+    if (!response) {
+      const newResponse = h.response({
+        status: 'testing onPreResponse',
+        message: 'jalan aja trosss ni program',
+      });
+      newResponse.code(response.statusCode);
+      return newResponse;
+    }
+    return h.continue;
+  });
+
   await server.start();
   console.log(`Server berjalan pada ${server.info.uri}`);
 };
