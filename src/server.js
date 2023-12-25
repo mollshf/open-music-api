@@ -7,6 +7,7 @@ const albums = require('./api/albums/index');
 const AlbumServices = require('./service/postgres/AlbumServices');
 const { debugConsole } = require('../utils/debug/chalkConsole');
 const ClientError = require('./exception/ClientError');
+const AlbumsValidator = require('./validator/albums');
 
 debugConsole(process.env.HOST);
 
@@ -28,6 +29,7 @@ const init = async () => {
       plugin: albums,
       options: {
         service: albumsService,
+        validator: AlbumsValidator,
       },
     },
     // {
@@ -42,11 +44,12 @@ const init = async () => {
     const { response } = request;
 
     if (response instanceof ClientError) {
+      debugConsole(response);
       const newResponse = h.response({
         status: 'fail',
         message: response.message,
       });
-      response.code(response.statusCode);
+      newResponse.code(response.statusCode);
       return newResponse;
     }
     return h.continue;
