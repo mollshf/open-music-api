@@ -38,7 +38,21 @@ class AlbumServices {
 
   async getAlbumById(id) {
     const query = {
-      text: `SELECT * FROM albums WHERE id = $1`,
+      text: `SELECT
+    albums.id AS id,
+    albums.name AS name,
+    albums.year AS year,
+    jsonb_agg(
+      jsonb_build_object(
+        'id', songs.id,
+        'title', songs.title,
+        'performer', songs.performer
+      )
+    ) AS songs
+    FROM albums
+    INNER JOIN songs ON albums.id = songs.album_id
+    WHERE albums.id = $1
+    GROUP BY albums.id`,
       values: [id],
     };
 

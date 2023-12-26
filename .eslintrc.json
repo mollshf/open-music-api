@@ -10,10 +10,7 @@
   },
   "rules": {
     "camelcase": "off",
-    "import/no-extraneous-dependencies": [
-      "error",
-      { "devDependencies": false }
-    ],
+
     "no-console": "off"
   }
 }
