@@ -9,8 +9,6 @@
     "ecmaVersion": "latest"
   },
   "rules": {
-    "camelcase": "off",
-
-    "no-console": "off"
+    "camelcase": "off"
   }
 }

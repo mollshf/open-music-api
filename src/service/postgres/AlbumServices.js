@@ -2,7 +2,6 @@
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
 
-const { debugConsole } = require('../../../utils/debug/chalkConsole');
 const NotFoundError = require('../../exception/NotFoundError');
 const InvariantError = require('../../exception/InvariantError');
 
@@ -12,7 +11,6 @@ class AlbumServices {
   }
 
   async addAlbum({ name, year }) {
-    debugConsole({ name, year }, 'album service');
     const id = `album-${nanoid(10)}`;
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
@@ -60,11 +58,6 @@ class AlbumServices {
     GROUP BY albums.id, albums.name, albums.year`,
       values: [id],
     };
-
-    // const query = {
-    //   text: `SELECT * FROM albums WHERE id = $1`,
-    //   values: [id],
-    // };
 
     const result = await this.pool.query(query);
 
