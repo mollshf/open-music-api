@@ -2,12 +2,27 @@ class SongsHandler {
   constructor(service, validator) {
     this.service = service;
     this.validator = validator;
+
+    this.postSongsHandler = this.postSongsHandler.bind(this);
+    this.getSongsHandler = this.getSongsHandler.bind(this);
+    this.getSongByIdHandler = this.getSongByIdHandler.bind(this);
+    this.putSongByIdHandler = this.putSongByIdHandler.bind(this);
+    this.deleteSongByIdHandler = this.deleteSongByIdHandler.bind(this);
   }
 
-  postSongsHandler(request, h) {
-    const { name = 'no name', year } = request.payload;
+  async postSongsHandler(request, h) {
+    const { title, year, genre, performer, duration, albumId } =
+      request.payload;
 
-    const songsId = this.service.addAlbum({ name, year });
+    const songsId = await this.service.addSongs({
+      title,
+      year,
+      genre,
+      performer,
+      duration,
+      albumId,
+    });
+
     const response = h.response({
       status: 'success',
       message: {
@@ -16,6 +31,59 @@ class SongsHandler {
     });
     response.code(201);
     return response;
+  }
+
+  async getSongsHandler() {
+    const songs = await this.service.getSongs();
+    return {
+      status: 'success',
+      data: {
+        songs,
+      },
+    };
+  }
+
+  async getSongByIdHandler(request) {
+    const { id } = request.params;
+
+    const song = await this.service.getSongById(id);
+
+    return {
+      status: 'success',
+      data: {
+        song,
+      },
+    };
+  }
+
+  async putSongByIdHandler(request) {
+    const { id, title, year, genre, performer, duration, albumId } =
+      request.payload;
+
+    await this.service.editSongById(id, {
+      title,
+      year,
+      genre,
+      performer,
+      duration,
+      albumId,
+    });
+
+    return {
+      status: 'success',
+      message: 'Song berhasil diperbarui',
+    };
+  }
+
+  async deleteSongByIdHandler(request) {
+    const { id } = request.payload;
+
+    await this.service.deleteSongById(id);
+
+    return {
+      status: 'success',
+      message: 'Song berhasil dihapus',
+    };
   }
 }
 
