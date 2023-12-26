@@ -42,18 +42,36 @@ class SongsServices {
   }
 
   async getSongs({ title, performer }) {
-    // if there is no request.query every query or no using query do this
-    if (!title && !performer) {
-      console.log('ahahah');
-      const result = await this.pool.query('SELECT * FROM songs');
-      const mapResult = result.rows.map(mapViewData);
-      return mapResult;
+    let queryText = 'SELECT * FROM songs';
+
+    const queryParams = [];
+    if (title || performer) {
+      queryText += ' WHERE';
+
+      if (title) {
+        queryText += ' LOWER(title) LIKE LOWER($1)';
+        queryParams.push(`%${title}%`);
+      }
+
+      if (title && performer) {
+        queryText += ' AND';
+        if (performer) {
+          queryText += ' LOWER(performer) LIKE LOWER($2)';
+          queryParams.push(`%${performer}%`);
+        }
+      }
+
+      if (!title) {
+        if (performer) {
+          queryText += ' LOWER(performer) LIKE LOWER($1)';
+          queryParams.push(`%${performer}%`);
+        }
+      }
     }
 
-    // if using query do this
     const query = {
-      text: `SELECT * FROM songs WHERE LOWER(title) LIKE LOWER($1) AND LOWER(performer) LIKE LOWER($2)`,
-      values: [`%${title}%`, `%${performer}%`],
+      text: queryText,
+      values: queryParams,
     };
     const result = await this.pool.query(query);
     const mapResult = result.rows.map(mapViewData);
@@ -85,7 +103,7 @@ class SongsServices {
 
     const result = await this.pool.query(query);
 
-    if (!result.rows[0].id) {
+    if (!result.rows[0]) {
       throw new NotFoundError('Gagal memperbarui song. Id tidak ditemukan');
     }
 
@@ -100,7 +118,7 @@ class SongsServices {
 
     const result = await this.pool.query(query);
 
-    if (!result.rows[0].id) {
+    if (!result.rows[0]) {
       throw new NotFoundError('Gagal menghapus song, Id tidak ditemukan');
     }
 

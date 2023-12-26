@@ -9,9 +9,6 @@ const SongsServices = require('./service/postgres/SongsService');
 const AlbumsValidator = require('./validator/albums');
 const SongsValidator = require('./validator/songs');
 const ClientError = require('./exception/ClientError');
-const { debugConsole } = require('../utils/debug/chalkConsole');
-
-debugConsole(process.env.HOST);
 
 const init = async () => {
   const albumsService = new AlbumServices();
@@ -46,8 +43,8 @@ const init = async () => {
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
 
+    console.log(response);
     if (response instanceof ClientError) {
-      debugConsole(response);
       const newResponse = h.response({
         status: 'fail',
         message: response.message,

@@ -42,19 +42,29 @@ class AlbumServices {
     albums.id AS id,
     albums.name AS name,
     albums.year AS year,
-    jsonb_agg(
-      jsonb_build_object(
-        'id', songs.id,
-        'title', songs.title,
-        'performer', songs.performer
-      )
-    ) AS songs
+    CASE
+      WHEN COUNT(songs.id) > 0 THEN
+        jsonb_agg(
+          jsonb_build_object(
+            'id', songs.id,
+            'title', songs.title,
+            'performer', songs.performer
+          )
+        )
+      ELSE
+        '[]'::jsonb
+    END AS songs
     FROM albums
-    INNER JOIN songs ON albums.id = songs.album_id
+    LEFT JOIN songs ON albums.id = songs.album_id
     WHERE albums.id = $1
-    GROUP BY albums.id`,
+    GROUP BY albums.id, albums.name, albums.year`,
       values: [id],
     };
+
+    // const query = {
+    //   text: `SELECT * FROM albums WHERE id = $1`,
+    //   values: [id],
+    // };
 
     const result = await this.pool.query(query);
 
