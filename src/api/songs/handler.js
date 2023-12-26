@@ -5,6 +5,7 @@ class SongsHandler {
   }
 
   async postSongsHandler(request, h) {
+    this.validator.validateSongsPayload(request.payload);
     const { title, year, genre, performer, duration, albumId } =
       request.payload;
 
@@ -52,6 +53,7 @@ class SongsHandler {
   }
 
   async putSongByIdHandler(request) {
+    this.validator.validateSongsPayload(request.payload);
     const { id, title, year, genre, performer, duration, albumId } =
       request.payload;
 

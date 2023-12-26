@@ -7,6 +7,7 @@ const songs = require('./api/songs/index');
 const AlbumServices = require('./service/postgres/AlbumServices');
 const SongsServices = require('./service/postgres/SongsService');
 const AlbumsValidator = require('./validator/albums');
+const SongsValidator = require('./validator/songs');
 const ClientError = require('./exception/ClientError');
 const { debugConsole } = require('../utils/debug/chalkConsole');
 
@@ -37,6 +38,7 @@ const init = async () => {
       plugin: songs,
       options: {
         service: songsServices,
+        validator: SongsValidator,
       },
     },
   ]);
