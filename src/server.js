@@ -2,6 +2,11 @@ require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 
+// authentications
+const authentications = require('./api/authentications');
+const AuthenticationsServices = require('./service/postgres/AuthenticationsServices');
+const AuthenticationsValidator = require('./validator/authentications');
+
 // albums
 const albums = require('./api/albums/index');
 const AlbumServices = require('./service/postgres/AlbumServices');
@@ -19,11 +24,13 @@ const UsersValidator = require('./validator/users');
 
 // error handling
 const ClientError = require('./exception/ClientError');
+const TokenManager = require('./tokenize/TokenManager');
 
 const init = async () => {
   const albumsService = new AlbumServices();
   const songsServices = new SongsServices();
   const usersService = new UsersServices();
+  const authenticationsServices = new AuthenticationsServices();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -57,11 +64,21 @@ const init = async () => {
         validator: UsersValidator,
       },
     },
+    {
+      plugin: authentications,
+      options: {
+        authenticationsServices,
+        usersService,
+        tokenManager: TokenManager,
+        validator: AuthenticationsValidator,
+      },
+    },
   ]);
 
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
 
+    console.log(response);
     if (response instanceof ClientError) {
       const newResponse = h.response({
         status: 'fail',
