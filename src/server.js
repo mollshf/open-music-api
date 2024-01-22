@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
+const Jwt = require('@hapi/jwt');
 
 // authentications
 const authentications = require('./api/authentications');
@@ -17,20 +18,28 @@ const songs = require('./api/songs/index');
 const SongsServices = require('./service/postgres/SongsService');
 const SongsValidator = require('./validator/songs');
 
-// songs
+// users
 const users = require('./api/users');
 const UsersServices = require('./service/postgres/UsersServices');
 const UsersValidator = require('./validator/users');
 
+// playlists
+const playlists = require('./api/playlists');
+
 // error handling
 const ClientError = require('./exception/ClientError');
+
+// tools
 const TokenManager = require('./tokenize/TokenManager');
+const PlaylistsServices = require('./service/postgres/PlaylistsServices');
+const PlaylistValidator = require('./validator/playlist');
 
 const init = async () => {
   const albumsService = new AlbumServices();
   const songsServices = new SongsServices();
   const usersService = new UsersServices();
   const authenticationsServices = new AuthenticationsServices();
+  const playlistsServices = new PlaylistsServices();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -40,6 +49,28 @@ const init = async () => {
         origin: ['*'],
       },
     },
+  });
+
+  await server.register([
+    {
+      plugin: Jwt,
+    },
+  ]);
+
+  server.auth.strategy('openmusic_api', 'jwt', {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id,
+      },
+    }),
   });
 
   await server.register([
@@ -73,6 +104,13 @@ const init = async () => {
         validator: AuthenticationsValidator,
       },
     },
+    {
+      plugin: playlists,
+      options: {
+        service: playlistsServices,
+        validator: PlaylistValidator,
+      },
+    },
   ]);
 
   server.ext('onPreResponse', (request, h) => {
@@ -88,14 +126,14 @@ const init = async () => {
       return newResponse;
     }
 
-    if (response instanceof Error) {
-      const newResponse = h.response({
-        status: 'error',
-        message: response.message,
-      });
-      newResponse.code(500);
-      return newResponse;
-    }
+    // if (response instanceof Error) {
+    //   const newResponse = h.response({
+    //     status: 'error',
+    //     message: response.message,
+    //   });
+    //   newResponse.code(500);
+    //   return newResponse;
+    // }
     return h.continue;
   });
 

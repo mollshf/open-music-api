@@ -32,3 +32,5 @@
 //     updatedAt: data.updated_at,
 //   }))
 // );
+
+console.log(require('crypto').randomBytes(64).toString('hex'));
