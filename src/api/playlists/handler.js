@@ -7,7 +7,6 @@ class PlaylistHandler {
   async addPlaylistHandler(request, h) {
     this.validator.validatePostPlaylistPayload(request.payload);
     const { name } = request.payload;
-    console.log(request.auth);
     const { id: owner } = request.auth.credentials;
 
     const playlistId = await this.service.addPlaylist({ name, owner });
@@ -33,6 +32,42 @@ class PlaylistHandler {
         playlists,
       },
     };
+  }
+
+  async getSongsInPlaylistHandler(request) {
+    const { id: playlistId } = request.params;
+    const { id: owner } = request.auth.credentials;
+
+    await this.service.checkPlaylistOwner(playlistId, owner);
+
+    const playlist = await this.service.getSongsInPlaylistById(playlistId);
+    return {
+      status: 'success',
+      data: {
+        playlist,
+      },
+    };
+  }
+
+  async addSongInUserPlaylistHandler(request, h) {
+    this.validator.validatePostPlaylistOfSongPayload(request.payload);
+
+    const { id: playlistId } = request.params;
+    const { songId } = request.payload;
+    const { id: owner } = request.auth.credentials;
+
+    // check playlist dan kepemilikan playlis
+    await this.service.checkPlaylistOwner(playlistId, owner);
+
+    // menambahkan song pemilikan playlist
+    await this.service.addSongInUserPlaylist({ playlistId, songId });
+
+    const response = h.response({
+      status: 'success',
+      message: `Song berhasil ditambahkan di playlist`,
+    });
+    response.code(201);
+    return response;
   }
 }
 

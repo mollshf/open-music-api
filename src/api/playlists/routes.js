@@ -15,6 +15,22 @@ const routes = (handler) => [
       auth: 'openmusic_api',
     },
   },
+  {
+    method: 'POST',
+    path: '/playlists/{id}/songs',
+    handler: (request, h) => handler.addSongInUserPlaylistHandler(request, h),
+    options: {
+      auth: 'openmusic_api',
+    },
+  },
+  {
+    method: 'GET',
+    path: '/playlists/{id}/songs',
+    handler: (request, h) => handler.getSongsInPlaylistHandler(request, h),
+    options: {
+      auth: 'openmusic_api',
+    },
+  },
 ];
 
 module.exports = routes;
