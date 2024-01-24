@@ -17,7 +17,7 @@ const routes = (handler) => [
   },
   {
     method: 'POST',
-    path: '/playlists/{id}/songs',
+    path: '/playlists/{playlistId}/songs',
     handler: (request, h) => handler.addSongInUserPlaylistHandler(request, h),
     options: {
       auth: 'openmusic_api',
@@ -25,8 +25,24 @@ const routes = (handler) => [
   },
   {
     method: 'GET',
-    path: '/playlists/{id}/songs',
+    path: '/playlists/{playlistId}/songs',
     handler: (request, h) => handler.getSongsInPlaylistHandler(request, h),
+    options: {
+      auth: 'openmusic_api',
+    },
+  },
+  {
+    method: 'DELETE',
+    path: '/playlists/{playlistId}',
+    handler: (request, h) => handler.deletePlaylistHandler(request, h),
+    options: {
+      auth: 'openmusic_api',
+    },
+  },
+  {
+    method: 'DELETE',
+    path: '/playlists/{playlistId}/songs',
+    handler: (request, h) => handler.deleteSongFromPlaylistHandler(request, h),
     options: {
       auth: 'openmusic_api',
     },

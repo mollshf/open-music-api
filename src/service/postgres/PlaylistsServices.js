@@ -95,7 +95,44 @@ class PlaylistsServices {
     return result.rows[0];
   }
 
-  async deleteSongFromPlaylists() {}
+  async deletePlaylists(id) {
+    const query = {
+      text: `
+      DELETE
+        FROM playlists
+        WHERE id = $1
+        RETURNING id
+        CASCADE
+      `,
+      values: [id],
+    };
+
+    const result = await this.pool.query(query);
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Playlists gagal dihapus, Id tidak ditemukan');
+    }
+  }
+
+  async deleteSongFromPlaylists(songId) {
+    const query = {
+      text: `
+        DELETE
+        FROM
+          playlists_songs
+        WHERE
+          song_id = $1
+        RETURNING
+          id
+      `,
+      values: [songId],
+    };
+    const result = await this.pool.query(query);
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Song gagal dihapus, Id tidak ditemukan');
+    }
+  }
 
   async checkPlaylistOwner(playlistId, owner) {
     const query = {

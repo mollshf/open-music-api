@@ -35,7 +35,7 @@ class PlaylistHandler {
   }
 
   async getSongsInPlaylistHandler(request) {
-    const { id: playlistId } = request.params;
+    const { playlistId } = request.params;
     const { id: owner } = request.auth.credentials;
 
     await this.service.checkPlaylistOwner(playlistId, owner);
@@ -52,7 +52,7 @@ class PlaylistHandler {
   async addSongInUserPlaylistHandler(request, h) {
     this.validator.validatePostPlaylistOfSongPayload(request.payload);
 
-    const { id: playlistId } = request.params;
+    const { playlistId } = request.params;
     const { songId } = request.payload;
     const { id: owner } = request.auth.credentials;
 
@@ -68,6 +68,37 @@ class PlaylistHandler {
     });
     response.code(201);
     return response;
+  }
+
+  async deletePlaylistHandler(request) {
+    const { playlistId } = request.params;
+    const { id: owner } = request.auth.credentials;
+
+    await this.service.checkPlaylistOwner(playlistId, owner);
+
+    await this.service.deletePlaylists(playlistId);
+
+    return {
+      status: 'success',
+      message: 'Playlist berhasil dihapus',
+    };
+  }
+
+  async deleteSongFromPlaylistHandler(request) {
+    this.validator.validatePostPlaylistOfSongPayload(request.payload);
+
+    const { playlistId } = request.params;
+    const { songId } = request.payload;
+    const { id: owner } = request.auth.credentials;
+
+    await this.service.checkPlaylistOwner(playlistId, owner);
+
+    await this.service.deleteSongFromPlaylists(songId);
+
+    return {
+      status: 'success',
+      message: 'song berhasil dihapus',
+    };
   }
 }
 

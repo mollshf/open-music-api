@@ -23,12 +23,14 @@ exports.up = (pgm) => {
     foreignKeys: {
       columns: 'playlist_id',
       references: 'playlists(id)',
+      onDelete: 'CASCADE',
     },
   });
   pgm.addConstraint('playlists_songs', 'fk_playlists_song_id', {
     foreignKeys: {
       columns: 'song_id',
       references: 'songs(id)',
+      onDelete: 'CASCADE',
     },
   });
 };
