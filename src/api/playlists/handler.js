@@ -4,7 +4,7 @@ class PlaylistHandler {
     this.validator = validator;
   }
 
-  async addPlaylistHandler(request, h) {
+  async postPlaylistHandler(request, h) {
     this.validator.validatePostPlaylistPayload(request.payload);
     const { name } = request.payload;
     const { id: owner } = request.auth.credentials;
@@ -38,7 +38,7 @@ class PlaylistHandler {
     const { playlistId } = request.params;
     const { id: owner } = request.auth.credentials;
 
-    await this.service.checkPlaylistOwner(playlistId, owner);
+    await this.service.verifyPlaylistAccess(playlistId, owner);
 
     const playlist = await this.service.getSongsInPlaylistById(playlistId);
     return {
@@ -49,7 +49,7 @@ class PlaylistHandler {
     };
   }
 
-  async addSongInUserPlaylistHandler(request, h) {
+  async postSongInUserPlaylistHandler(request, h) {
     this.validator.validatePostPlaylistOfSongPayload(request.payload);
 
     const { playlistId } = request.params;
@@ -57,7 +57,7 @@ class PlaylistHandler {
     const { id: owner } = request.auth.credentials;
 
     // check playlist dan kepemilikan playlis
-    await this.service.checkPlaylistOwner(playlistId, owner);
+    await this.service.verifyPlaylistAccess(playlistId, owner);
 
     // menambahkan song pemilikan playlist
     await this.service.addSongInUserPlaylist({ playlistId, songId });
@@ -74,7 +74,7 @@ class PlaylistHandler {
     const { playlistId } = request.params;
     const { id: owner } = request.auth.credentials;
 
-    await this.service.checkPlaylistOwner(playlistId, owner);
+    await this.service.verifyPlaylistOwner(playlistId, owner);
 
     await this.service.deletePlaylists(playlistId);
 
@@ -91,7 +91,7 @@ class PlaylistHandler {
     const { songId } = request.payload;
     const { id: owner } = request.auth.credentials;
 
-    await this.service.checkPlaylistOwner(playlistId, owner);
+    await this.service.verifyPlaylistAccess(playlistId, owner);
 
     await this.service.deleteSongFromPlaylists(songId);
 

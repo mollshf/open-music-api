@@ -5,8 +5,9 @@ const NotFoundError = require('../../exception/NotFoundError');
 const AuthorizationError = require('../../exception/AuthorizationError');
 
 class PlaylistsServices {
-  constructor(songsService) {
+  constructor(songsService, collaborationsServices) {
     this.songsService = songsService;
+    this.collaborationsServices = collaborationsServices;
     this.pool = new Pool();
   }
 
@@ -31,10 +32,12 @@ class PlaylistsServices {
     const query = {
       text: `SELECT playlists.id, playlists.name, users.username 
              FROM playlists 
-             LEFT JOIN users ON users.id = playlists.owner 
-             WHERE users.id = $1`,
+             LEFT JOIN users ON users.id = playlists.owner
+             LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id
+             WHERE playlists.owner = $1 OR collaborations.user_id = $1`,
       values: [owner],
     };
+    console.log('OWNER DI GET GET SERVICE', owner);
     const result = await this.pool.query(query);
     return result.rows;
   }
@@ -134,7 +137,7 @@ class PlaylistsServices {
     }
   }
 
-  async checkPlaylistOwner(playlistId, owner) {
+  async verifyPlaylistOwner(playlistId, owner) {
     const query = {
       text: `SELECT * FROM playlists where id = $1 `,
       values: [playlistId],
@@ -150,6 +153,27 @@ class PlaylistsServices {
 
     if (playlist.owner !== owner) {
       throw new AuthorizationError('Anda tidak berhak mengakses playlist ini');
+    }
+  }
+
+  async verifyPlaylistAccess(playlistId, owner) {
+    try {
+      await this.verifyPlaylistOwner(playlistId, owner);
+    } catch (error) {
+      // kalau errornya adalah Not Found, maka dia langsung throw error
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
+
+      // kalau errornya selain Not Found, maka errornya akan disimpan dulu, dan jalankan kode dalam try ini
+      try {
+        // kalau kode ini berhasil, maka user bisa mengakses playlist dengan collab
+        await this.collaborationsServices.verifyCollaborator(playlistId, owner);
+        // kalau tidak berhasil maka pesan error dari method verifyMethod tidak dijalankan
+        // melainkan pesan verifyPlaylistOwner di teruskan ke catch tanpa parameter
+      } catch {
+        throw error;
+      }
     }
   }
 }

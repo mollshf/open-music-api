@@ -2,7 +2,7 @@ const routes = (handler) => [
   {
     method: 'POST',
     path: '/playlists',
-    handler: (request, h) => handler.addPlaylistHandler(request, h),
+    handler: (request, h) => handler.postPlaylistHandler(request, h),
     options: {
       auth: 'openmusic_api',
     },
@@ -18,7 +18,7 @@ const routes = (handler) => [
   {
     method: 'POST',
     path: '/playlists/{playlistId}/songs',
-    handler: (request, h) => handler.addSongInUserPlaylistHandler(request, h),
+    handler: (request, h) => handler.postSongInUserPlaylistHandler(request, h),
     options: {
       auth: 'openmusic_api',
     },
