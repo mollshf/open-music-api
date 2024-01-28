@@ -37,7 +37,6 @@ class PlaylistsServices {
              WHERE playlists.owner = $1 OR collaborations.user_id = $1`,
       values: [owner],
     };
-    console.log('OWNER DI GET GET SERVICE', owner);
     const result = await this.pool.query(query);
     return result.rows;
   }
