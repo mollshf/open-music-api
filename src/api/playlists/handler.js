@@ -115,7 +115,6 @@ class PlaylistHandler {
     await this.service.verifyPlaylistAccess(playlistId, owner);
 
     const activities = await this.activityService.getActivities(playlistId);
-    console.log('SUP[ER DATA AOKWAO', activities);
 
     return {
       status: 'success',
