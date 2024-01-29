@@ -39,6 +39,7 @@ const ClientError = require('./exception/ClientError');
 // tools
 const TokenManager = require('./tokenize/TokenManager');
 const ActivitiesServices = require('./service/postgres/ActivitiesService');
+const { error } = require('./validator/users/schema');
 
 const init = async () => {
   const albumsService = new AlbumServices();
@@ -133,6 +134,8 @@ const init = async () => {
 
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
+
+    console.log(response);
 
     if (response instanceof ClientError) {
       const newResponse = h.response({
