@@ -38,6 +38,7 @@ const ClientError = require('./exception/ClientError');
 
 // tools
 const TokenManager = require('./tokenize/TokenManager');
+const ActivitiesServices = require('./service/postgres/ActivitiesService');
 
 const init = async () => {
   const albumsService = new AlbumServices();
@@ -46,6 +47,7 @@ const init = async () => {
   const authenticationsServices = new AuthenticationsServices();
   const collaborationsServices = new CollaborationsServices();
   const playlistsServices = new PlaylistsServices(songsServices, collaborationsServices);
+  const activityService = new ActivitiesServices();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -114,6 +116,7 @@ const init = async () => {
       plugin: playlists,
       options: {
         service: playlistsServices,
+        activityService,
         validator: PlaylistValidator,
       },
     },

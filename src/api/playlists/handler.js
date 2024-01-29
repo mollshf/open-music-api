@@ -1,6 +1,7 @@
 class PlaylistHandler {
-  constructor(service, validator) {
+  constructor(service, activityService, validator) {
     this.service = service;
+    this.activityService = activityService;
     this.validator = validator;
   }
 
@@ -62,6 +63,8 @@ class PlaylistHandler {
     // menambahkan song pemilikan playlist
     await this.service.addSongInUserPlaylist({ playlistId, songId });
 
+    await this.activityService.addActivities('add', { playlistId, songId, userId: owner });
+
     const response = h.response({
       status: 'success',
       message: `Song berhasil ditambahkan di playlist`,
@@ -95,9 +98,31 @@ class PlaylistHandler {
 
     await this.service.deleteSongFromPlaylists(songId);
 
+    await this.activityService.addActivities('delete', { playlistId, songId, userId: owner });
+
     return {
       status: 'success',
       message: 'song berhasil dihapus',
+    };
+  }
+
+  async getPlaylistsActivitiestHandler(request) {
+    this.validator.validatePostPlaylistOfSongPayload(request.payload);
+
+    const { playlistId } = request.params;
+    const { id: owner } = request.auth.credentials;
+
+    await this.service.verifyPlaylistAccess(playlistId, owner);
+
+    const activities = await this.activityService.getActivities(playlistId);
+    console.log('SUP[ER DATA AOKWAO', activities);
+
+    return {
+      status: 'success',
+      data: {
+        playlistId,
+        activities,
+      },
     };
   }
 }

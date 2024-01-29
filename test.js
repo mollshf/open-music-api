@@ -33,4 +33,6 @@
 //   }))
 // );
 
-console.log(require('crypto').randomBytes(64).toString('hex'));
+console.log(require('crypto').randomBytes(16).toString('hex'));
+// const time = new Date().toISOString();
+// console.log(time);
