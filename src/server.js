@@ -33,11 +33,17 @@ const collaborations = require('./api/collaborations');
 const CollaborationsServices = require('./service/postgres/CollaborationsServices');
 const collaborationsValidator = require('./validator/collaborations');
 
+// export
+const Texports = require('./api/exports');
+const ProduceService = require('./service/rabbitmq/ProducerService');
+const ExportsPlaylistsPayloadValidator = require('./validator/exports');
+
 // error handling
 const ClientError = require('./exception/ClientError');
 
 // tools
 const TokenManager = require('./tokenize/TokenManager');
+const config = require('../utils/config');
 const ActivitiesServices = require('./service/postgres/ActivitiesService');
 
 const init = async () => {
@@ -50,8 +56,8 @@ const init = async () => {
   const activityService = new ActivitiesServices();
 
   const server = Hapi.server({
-    port: process.env.PORT,
-    host: process.env.HOST,
+    port: config.server.port,
+    host: config.server.host,
     routes: {
       cors: {
         origin: ['*'],
@@ -66,12 +72,12 @@ const init = async () => {
   ]);
 
   server.auth.strategy('openmusic_api', 'jwt', {
-    keys: process.env.ACCESS_TOKEN_KEY,
+    keys: config.server.jwt.accessToken,
     verify: {
       aud: false,
       iss: false,
       sub: false,
-      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+      maxAgeSec: config.server.jwt.accessTokenAge,
     },
     validate: (artifacts) => ({
       isValid: true,
@@ -129,10 +135,19 @@ const init = async () => {
         validator: collaborationsValidator,
       },
     },
+    {
+      plugin: Texports,
+      options: {
+        service: ProduceService,
+        playlistsServices,
+        validator: ExportsPlaylistsPayloadValidator,
+      },
+    },
   ]);
 
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
+    console.log(response);
 
     if (response instanceof ClientError) {
       const newResponse = h.response({
