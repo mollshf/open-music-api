@@ -63,7 +63,6 @@ class AlbumServices {
 
     const result = await this.pool.query(query);
 
-    console.log(result.rows[0]);
     if (!result.rows[0]) {
       throw new NotFoundError('Album tidak ditemukan');
     }
