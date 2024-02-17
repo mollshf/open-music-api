@@ -1,7 +1,3 @@
-/* eslint-disable camelcase */
-
-exports.shorthands = undefined;
-
 exports.up = (pgm) => {
   // menambahkan constraint foreign key
   pgm.addConstraint('playlists_songs', 'fk_playlists_songs_playlist_id', {

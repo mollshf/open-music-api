@@ -40,6 +40,7 @@ class AlbumServices {
     albums.id AS id,
     albums.name AS name,
     albums.year AS year,
+    albums.cover AS coverUrl,
     CASE
       WHEN COUNT(songs.id) > 0 THEN
         jsonb_agg(
@@ -73,6 +74,21 @@ class AlbumServices {
     const query = {
       text: `UPDATE albums SET name = $1, year = $2,  updated_at = $3 WHERE id = $4 RETURNING id`,
       values: [name, year, updatedAt, id],
+    };
+
+    const result = await this.pool.query(query);
+    if (!result.rows[0]) {
+      throw new NotFoundError('Gagal memperbarui Album. Id tidak ditemukan');
+    }
+
+    return result.rows[0].id;
+  }
+
+  async editCoverAlbumById(id, cover) {
+    const updatedAt = new Date().toISOString();
+    const query = {
+      text: `UPDATE albums SET cover = $1, updated_at = $2 WHERE id = $3 RETURNING id`,
+      values: [cover, updatedAt, id],
     };
 
     const result = await this.pool.query(query);
