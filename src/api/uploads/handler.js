@@ -8,7 +8,6 @@ class UploadsHandler {
   async postUploadsHandler(request, h) {
     const { id } = request.params;
     const { cover } = request.payload;
-    console.log(cover, 'INI DATA');
 
     this.validator.validateUploadsPayload(cover.hapi.headers);
 

@@ -62,6 +62,7 @@ class AlbumServices {
 
     const result = await this.pool.query(query);
 
+    console.log(result.rows[0]);
     if (!result.rows[0]) {
       throw new NotFoundError('Album tidak ditemukan');
     }
@@ -111,6 +112,59 @@ class AlbumServices {
     }
 
     return result.rows[0].id;
+  }
+
+  async addLikeToAlbumById(userId, albumId) {
+    const id = `likeAlb-${nanoid(16)}`;
+
+    const query = {
+      text: `INSERT INTO album_likes VALUES($1, $2, $3) RETURNING id`,
+      values: [id, userId, albumId],
+    };
+
+    const result = await this.pool.query(query);
+
+    if (!result.rowCount) {
+      throw new InvariantError('Gagal menyukai album');
+    }
+  }
+
+  async verifyUserLikeTheAlbum(userId, albumId) {
+    const query = {
+      text: `SELECT * FROM album_likes WHERE user_id = $1 AND album_id = $2`,
+      values: [userId, albumId],
+    };
+
+    const result = await this.pool.query(query);
+
+    if (result.rowCount) {
+      throw new InvariantError('Tindakan tersebut hanya diizinkan sekali per pengguna');
+    }
+  }
+
+  async getAlbumLikeCountById(albumId) {
+    const query = {
+      text: `SELECT COUNT(user_id) FROM album_likes WHERE album_id = $1`,
+      values: [albumId],
+    };
+
+    const result = await this.pool.query(query);
+
+    // console.log(typeof result.rows[0].count);
+    return +result.rows[0].count;
+  }
+
+  async deleteLikeAlbumById(userId, albumId) {
+    const query = {
+      text: `DELETE FROM album_likes WHERE user_id = $1 AND album_id = $2 RETURNING id`,
+      values: [userId, albumId],
+    };
+
+    const result = await this.pool.query(query);
+
+    if (!result.rowCount) {
+      throw new NotFoundError('Gagal menghapus like album');
+    }
   }
 }
 
