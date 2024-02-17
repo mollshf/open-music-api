@@ -1,14 +1,27 @@
+// utils/config.js
+
 const config = {
-  server: {
-    port: process.env.PORT,
+  app: {
     host: process.env.HOST,
-    jwt: {
-      accessToken: process.env.ACCESS_TOKEN_KEY,
-      accessTokenAge: process.env.ACCESS_TOKEN_AGE,
-    },
+    port: process.env.PORT,
   },
-  rabbitMQ: {
+  jwt: {
+    accessToken: process.env.ACCESS_TOKEN_KEY,
+    refreshToken: process.env.REFRESH_TOKEN_KEY,
+    accessTokenAge: process.env.ACCESS_TOKEN_AGE,
+  },
+
+  s3: {
+    region: process.env.AWS_REGION,
+    bucketName: process.env.AWS_BUCKET_NAME,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+  rabbitMq: {
     server: process.env.RABBITMQ_SERVER,
+  },
+  redis: {
+    host: process.env.REDIS_SERVER,
   },
 };
 

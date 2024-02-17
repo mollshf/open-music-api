@@ -68,8 +68,8 @@ const init = async () => {
   const storageService = new StorageService();
 
   const server = Hapi.server({
-    port: config.server.port,
-    host: config.server.host,
+    port: config.app.port,
+    host: config.app.host,
     routes: {
       cors: {
         origin: ['*'],
@@ -87,12 +87,12 @@ const init = async () => {
   ]);
 
   server.auth.strategy('openmusic_api', 'jwt', {
-    keys: config.server.jwt.accessToken,
+    keys: process.env.ACCESS_TOKEN_KEY,
     verify: {
       aud: false,
       iss: false,
       sub: false,
-      maxAgeSec: config.server.jwt.accessTokenAge,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
     },
     validate: (artifacts) => ({
       isValid: true,
