@@ -53,9 +53,11 @@ const ClientError = require('./exception/ClientError');
 const TokenManager = require('./tokenize/TokenManager');
 const config = require('../utils/config');
 const ActivitiesServices = require('./service/postgres/ActivitiesService');
+const CacheService = require('./service/redis/CacheService');
 
 const init = async () => {
-  const albumsService = new AlbumServices();
+  const cacheService = new CacheService();
+  const albumsService = new AlbumServices(cacheService);
   const songsServices = new SongsServices();
   const usersService = new UsersServices();
   const authenticationsServices = new AuthenticationsServices();
@@ -105,6 +107,7 @@ const init = async () => {
       plugin: albums,
       options: {
         service: albumsService,
+        cacheService,
         validator: AlbumsValidator,
       },
     },
